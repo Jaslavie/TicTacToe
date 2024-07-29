@@ -6,5 +6,7 @@ public class TicTacToeGame {
 
         // initialize the board with a new board object
         Board board = new Board(playerCount);
+        // initialize the number of elements in a row to win
+        int playerWinChoice = 3;
     }
 }
