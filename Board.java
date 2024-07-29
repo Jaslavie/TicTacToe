@@ -8,19 +8,21 @@ import javax.swing.*;
 
 public class Board {
     // create an instance variable to store the dimensions of the board as an array
-    private int[][] board;
-    private int playerCount;
-    private int playerWinChoice = 0;
+    private final int[][] board;
+    private final int playerCount;
+    private final int playerWinChoice;
     private JFrame frame;
     private JPanel panel;
-    private JButton[][] buttons;
+    private final JButton[][] buttons;
     private char currentPlayer = 'X';
+    private int[] lastMove;
+    
     //* construct the board
-    public Board(int playerCount) {
+    public Board(int playerCount, int playerWinChoice) {
+        this.board = new int[playerCount + 1][playerCount + 1];
         // use "this" keyword to refer to the instance variable of the Board class
         this.playerCount = playerCount;
-        // create a new 2D array object with the dimensions of the board
-        this.board = new int[playerCount + 1][playerCount + 1];
+        this.playerWinChoice = playerWinChoice;
         // buttons are added for each cell of the board
         this.buttons = new JButton[playerCount + 1][playerCount + 1];
         currentPlayer = 'X';
@@ -84,6 +86,8 @@ public class Board {
                 updateBoard(row, col, currentPlayer);
                 // update the button text with the player symbol
                 buttons[row][col].setText(String.valueOf(currentPlayer));
+                //* store the last move in an array
+                int[] lastMove = {row, col};
                 // check if the player has won
                 if (checkWin(row, col) || checkFull()) {
                     endGameModal();
@@ -165,10 +169,14 @@ public class Board {
         if (response == JOptionPane.YES_OPTION){
             frame.dispose();
             // create a new board object
-            new Board(playerCount);
+            new Board(playerCount, playerWinChoice);
         } else {
             frame.dispose();
         }
         
+    }
+    //* get player's move from buttons GUIby returning coordinates of the row and columnm of clicked button
+    public int[] getMove(char playerSymbol) {
+        return lastMove;
     }
 }
