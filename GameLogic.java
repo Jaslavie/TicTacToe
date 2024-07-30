@@ -1,5 +1,9 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.swing.JOptionPane;
+
 
 public class GameLogic {
     private Board board;
@@ -19,14 +23,33 @@ public class GameLogic {
     }
 
     private void initializePlayers(int playerCount) {
-        // create an array of symbols
-        char[] symbols = {'X', 'O', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
-        // populate the list of players with player objects
+        //* hash set to store used symbols attached to specific player IDs
+        Set<Character> usedSymbols = new HashSet<>();
+        // loop through the number of players selected
         for (int i = 0; i < playerCount; i++) {
-            // type cast the player symbol to a character
-            char symbol = symbols[i];
-            // add player objects with a unique id and symbol to the players list
-            players.add(new Player(i, symbol));
+            while (true) {
+                // prompt the user to enter a unique symbol for each player
+                String symbolInput = JOptionPane.showInputDialog("Enter a unique symbol for player " + (i + 1) + ":");
+                
+                //* validate the character is not null and is 1 character long
+                if (symbolInput != null && symbolInput.length() == 1) {
+                    // create a character to store the symbol from the modal
+                    char symbol = symbolInput.charAt(0);
+                    //* check if the symbol is not already used by checking if its in the useSymbol set
+                    if (!usedSymbols.contains(symbol)) {
+                        // add the symbol to the used symbols set
+                        usedSymbols.add(symbol);
+                        // add the player and the new symbol to the list
+                        players.add(new Player(i, symbol));
+                        break;
+                    } else {
+                        //* error handling for duplicate symbols
+                        JOptionPane.showMessageDialog(null, "Symbol already taken. Please enter a unique symbol.");
+                    }
+                } else { 
+                    JOptionPane.showMessageDialog(null, "Invalid input. Please enter a single character.");
+                }
+            }
         }
     }
 

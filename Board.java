@@ -15,7 +15,7 @@ public class Board {
     // add a reference to the GameLogic class
     private final GameLogic gameLogic;
 
-    //* construct the board
+    //* construct the board by initializing the dimensions 
     public Board(int playerCount, int playerWinChoice, GameLogic gameLogic) {
         this.gameLogic = gameLogic;
         this.board = new char[playerCount + 1][playerCount + 1];
@@ -142,8 +142,8 @@ public class Board {
         int startCol = col;
         // loop through the diagonal cells
         while (startRow > 0 && startCol > 0) {
-            startRow--;
-            startCol--;
+            startRow--; // decrement the row
+            startCol--; // decrement the column
         }
         // check the diagonal cells
         while (startRow < playerCount + 1 && startCol < playerCount + 1) {

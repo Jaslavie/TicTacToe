@@ -5,6 +5,7 @@ public class TicTacToeGame {
         // initialize the player count and win condition to 0
         int playerCount = 0;
         int playerWinChoice = 0;
+       
         //* prompt the user to enter the number of players
         while (true) {
             try {
