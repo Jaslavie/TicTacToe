@@ -1,44 +1,43 @@
-//* Initialize the board structure for tictactoe game
-// Board = (playerCount +1) x (playerCount +1) matrix
-
-// import GUI elements from the java library
 import java.awt.Font;
 import java.awt.GridLayout;
 import javax.swing.*;
 
 public class Board {
     // create an instance variable to store the dimensions of the board as an array
-    private final int[][] board;
+    private final char[][] board;
     private final int playerCount;
     private final int playerWinChoice;
     private JFrame frame;
     private JPanel panel;
     private final JButton[][] buttons;
-    private char currentPlayer = 'X';
-    private int[] lastMove;
-    
+    // initialize last move
+    private final int[] lastMove = new int[2];
+    // add a reference to the GameLogic class
+    private final GameLogic gameLogic;
+
     //* construct the board
-    public Board(int playerCount, int playerWinChoice) {
-        this.board = new int[playerCount + 1][playerCount + 1];
+    public Board(int playerCount, int playerWinChoice, GameLogic gameLogic) {
+        this.gameLogic = gameLogic;
+        this.board = new char[playerCount + 1][playerCount + 1];
         // use "this" keyword to refer to the instance variable of the Board class
         this.playerCount = playerCount;
         this.playerWinChoice = playerWinChoice;
-        // buttons are added for each cell of the board
         this.buttons = new JButton[playerCount + 1][playerCount + 1];
-        currentPlayer = 'X';
         initializeBoard();
         displayBoard();
     }
+
     //* initialize the board with null values
     public final void initializeBoard() {
         // loop through the dimensions of the board
-        for (int i = 0; i < playerCount +1; i++) {
+        for (int i = 0; i < playerCount + 1; i++) {
             for (int j = 0; j < playerCount + 1; j++) {
                 // initialize all cells of the board to a null value
-                board[i][j] = 0;
+                board[i][j] = '-';
             }
         }
     }
+
     //* display the board with the GUI interface
     public final void displayBoard() {
         // create a window object to store the board
@@ -49,8 +48,8 @@ public class Board {
         panel.setLayout(new GridLayout(playerCount + 1, playerCount + 1));
 
         //* add buttons to the each cell container in the grid
-        for (int i = 0; i < playerCount + 1; i ++) {
-            for (int j = 0; j < playerCount +1; j++) {
+        for (int i = 0; i < playerCount + 1; i++) {
+            for (int j = 0; j < playerCount + 1; j++) {
                 // create a new button object with "-" as a placeholder
                 buttons[i][j] = new JButton("-");
                 buttons[i][j].setFont(new Font("Inter", Font.BOLD, 50));
@@ -71,77 +70,105 @@ public class Board {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // make the frame visible
         frame.setVisible(true);
+    }
 
-    }
-    //* switch players
-    public void switchPlayers() {
-        // sets player to O if current player is X, else sets player to X
-        currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-    }
     //* Handle button click
     private void handleButtonClick(int row, int col) {
-            // check if the cell is empty
-            if (board[row][col] == 0) {
-                // update board with the player symbol
-                updateBoard(row, col, currentPlayer);
-                // update the button text with the player symbol
-                buttons[row][col].setText(String.valueOf(currentPlayer));
-                //* store the last move in an array
-                int[] lastMove = {row, col};
-                // check if the player has won
-                if (checkWin(row, col) || checkFull()) {
-                    endGameModal();
-                } else{
-                    switchPlayers();
-                }
-                
+        // check if the cell is empty
+        if (board[row][col] == '-') {
+            // update board with the player symbol
+            char currentPlayerSymbol = gameLogic.getCurrentPlayerSymbol();
+            updateBoard(row, col, currentPlayerSymbol);
+            // update the button text with the player symbol
+            buttons[row][col].setText(String.valueOf(currentPlayerSymbol));
+
+            //* store the last move in an array
+            lastMove[0] = row;
+            lastMove[1] = col;
+
+            // check if the player has won
+            if (checkWin(row, col)) {
+                endGameModal("Player " + currentPlayerSymbol + " wins!");
+            } else if (checkFull()) {
+                endGameModal("It's a draw!");
+            } else {
+                // switch to the next player
+                gameLogic.switchPlayer();
             }
+        } else {
+            // display an error message if the cell is not empty
+            JOptionPane.showMessageDialog(frame, "Invalid move. Try again.");
         }
+    }
 
     //* check if the player has won
     public boolean checkWin(int row, int col) {
         // initialize the win condition to the player's choice
         int winCondition = playerWinChoice;
         // type cast the player's symbol at the column to a character
-        char playerSymbol = (char) board[row][col];
+        char playerSymbol = board[row][col];
 
         //* check rows 
-        for (int i = 0; i < winCondition; i++) {
-            // for each column in the row, check if the player symbol is present
-            if (board[row][i] != playerSymbol) {
-                break;
-                // if the player symbol is present in all colums of the win condition, return true
-            } else if (i == winCondition - 1) {
-                return true;
+        int count = 0;
+        for (int i = 0; i < playerCount + 1; i++) {
+            if (board[row][i] == playerSymbol) {
+                count++;
+                if (count == winCondition) {
+                    return true;
+                }
+            } else {
+                count = 0;
             }
         }
 
         //* check columns
-        for (int i = 0; i < winCondition; i++) {
-            if (board[i][col] != playerSymbol) {
-                break;
-            } else if (i == winCondition - 1) {
-                return true;
-            }
-        }
-        //* check diagonals
-       
-            for (int i = 0; i < winCondition; i++) {
-                if (board[i][i] != playerSymbol) {
-                    break;
-                } else if (i == winCondition - 1) {
+        count = 0;
+        for (int i = 0; i < playerCount + 1; i++) {
+            if (board[i][col] == playerSymbol) {
+                count++;
+                if (count == winCondition) {
                     return true;
                 }
+            } else {
+                count = 0;
             }
-   
+        }
+
+        //* check main diagonal
+        count = 0;
+        for (int i = 0; i < playerCount + 1; i++) {
+            if (row - col == 0 && board[i][i] == playerSymbol) {
+                count++;
+                if (count == winCondition) {
+                    return true;
+                }
+            } else if (row - col != 0) {
+                count = 0;
+            }
+        }
+
+        //* check anti-diagonal
+        count = 0;
+        for (int i = 0; i < playerCount + 1; i++) {
+            if (board[i][(playerCount + 1) - 1 - i] == playerSymbol) {
+                count++;
+                if (count == winCondition) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+        }
+
         return false;
     }
+
     //* check if the board is full
     public boolean checkFull() {
         for (int i = 0; i < playerCount + 1; i++) {
             for (int j = 0; j < playerCount + 1; j++) {
                 // if there are still empty spaces in the board then return false
-                if (board[i][j] == 0) {
+                if (board[i][j] == '-') {
                     return false;
                 }
             }
@@ -150,32 +177,34 @@ public class Board {
     }
 
     //* update the board
-    public void updateBoard(int row, int col, char symbol){
+    public boolean updateBoard(int row, int col, char symbol) {
         // update board cells with the player's symbol
-        board[row][col] = symbol; 
+        board[row][col] = symbol;
+        return true;
     }
 
     //* modal for end of game
-    private void endGameModal() {
+    public void endGameModal(String message) {
         // create a modal dialog box to display the end of the game
         int response = JOptionPane.showConfirmDialog(
             frame, // parent component
-            "Game Over! Play again?",  // message
+            message + "\nPlay again?",  // message
             "Game Over",  // title
-            JOptionPane.YES_NO_OPTION, // option type
-            JOptionPane.QUESTION_MESSAGE // message type
+            // prompt user to click a button to restart the game
+            JOptionPane.YES_NO_OPTION,  // option type
+            JOptionPane.QUESTION_MESSAGE  // message type
         );
-        // if the user clicks yes, reset the board
-        if (response == JOptionPane.YES_OPTION){
+        if (response == JOptionPane.YES_OPTION) {
             frame.dispose();
-            // create a new board object
-            new Board(playerCount, playerWinChoice);
+            gameLogic.startNewGame();
         } else {
             frame.dispose();
+            // close the window
+            System.exit(0);
         }
-        
     }
-    //* get player's move from buttons GUIby returning coordinates of the row and columnm of clicked button
+
+    //* get player's move from buttons GUI by returning coordinates of the row and column of clicked button
     public int[] getMove(char playerSymbol) {
         return lastMove;
     }

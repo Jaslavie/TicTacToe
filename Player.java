@@ -1,4 +1,3 @@
-//* logic for players
 public class Player {
     private final int id;
     private final char symbol;
@@ -14,9 +13,9 @@ public class Player {
     public int getId() {
         return id;
     }
+
     // getter for player symbol
     public char getSymbol() {
         return symbol;
     }
-    
 }
