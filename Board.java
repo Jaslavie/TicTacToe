@@ -137,22 +137,18 @@ public class Board {
 
         //* check main diagonal
         count = 0;
-        for (int i = 0; i < playerCount + 1; i++) {
-            if (row - col == 0 && board[i][i] == playerSymbol) {
-                count++;
-                if (count == winCondition) {
-                    return true;
-                }
-                // if the row and column are not equal, reset the count
-            } else if (row - col != 0) {
-                count = 0;
-            }
+        // initialize the starting row and column to the user's current coordinate position
+        int startRow = row;
+        int startCol = col;
+        // loop through the diagonal cells
+        while (startRow > 0 && startCol > 0) {
+            startRow--;
+            startCol--;
         }
-
-        //* check anti-diagonal
-        count = 0;
-        for (int i = 0; i < playerCount + 1; i++) {
-            if (board[i][(playerCount + 1) - 1 - i] == playerSymbol) {
+        // check the diagonal cells
+        while (startRow < playerCount + 1 && startCol < playerCount + 1) {
+            // if the diagonal cell contains the player's symbol, increment the count
+            if (board[startRow][startCol] == playerSymbol) {
                 count++;
                 if (count == winCondition) {
                     return true;
@@ -160,6 +156,30 @@ public class Board {
             } else {
                 count = 0;
             }
+            // increment the row and column to check the next diagonal cell
+            startRow++;
+            startCol++;
+        }
+
+        //* check anti-diagonal
+        count = 0;
+        startRow = row;
+        startCol = col;
+        while (startRow > 0 && startCol < playerCount) {
+            startRow--;
+            startCol++;
+        }
+        while (startRow < playerCount + 1 && startCol >= 0) {
+            if (board[startRow][startCol] == playerSymbol) {
+                count++;
+                if (count == winCondition) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+            startRow++;
+            startCol--;
         }
 
         return false;
