@@ -89,6 +89,7 @@ public class Board {
             // check if the player has won
             if (checkWin(row, col)) {
                 endGameModal("Player " + currentPlayerSymbol + " wins!");
+            //* checks for ties
             } else if (checkFull()) {
                 endGameModal("It's a draw!");
             } else {
@@ -142,6 +143,7 @@ public class Board {
                 if (count == winCondition) {
                     return true;
                 }
+                // if the row and column are not equal, reset the count
             } else if (row - col != 0) {
                 count = 0;
             }
